@@ -1,42 +1,68 @@
 package Game;
 
+import android.graphics.Canvas;
+import android.view.SurfaceHolder;
+
 public class GameRunner extends Thread {
 
     private boolean running;
+    private IGame game; /*Game's state*/
+    private final SurfaceHolder surfaceHolder;
 
-    public GameRunner() {
-        this.running = true;
-        this.setup();
-    }
+    public GameRunner(SurfaceHolder surfaceHolder) {
+        super();
 
-    /**
-     * initialise the game's state like the level ...
-     */
-    private void setup() {
+        this.surfaceHolder = surfaceHolder;
 
-    }
+        this.game = new Game();
+        this.running = false;
 
-    /**
-     * called every frame
-     * update the game's state
-     */
-    private void update() {
-
-    }
-
-    /**
-     * called every frame
-     * draw the actual game's state
-     */
-    private void draw() {
-
+        game.setup();
     }
 
     @Override
     public void run() {
+        int frameCount = 0;
+        long totalTime = 0;
+        Canvas canvas = null;
+
         while (running) {
-            this.update();
-            this.draw();
+
+            long startTime = 0;
+            try {
+                startTime = System.nanoTime();
+
+                canvas = this.surfaceHolder.lockCanvas();
+
+                synchronized (surfaceHolder) {
+                    this.game.update();
+                    this.game.draw(canvas);
+                }
+
+            } catch (Exception e) { //TODO add good exception
+                e.printStackTrace();
+            } finally {
+                if (canvas != null) {
+                    try {
+                        surfaceHolder.unlockCanvasAndPost(canvas);
+                    }   catch (Exception e) {
+                        e.printStackTrace();  //TODO add good exception
+                    }
+                }
+            }
+
+            totalTime += System.nanoTime() - startTime;
+            frameCount++;
+
+            if (totalTime >= 1000000000) {// 1 sec in ns
+                totalTime = 0;
+                System.out.println("FPS : " + frameCount);
+                frameCount = 0;
+            }
         }
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
     }
 }

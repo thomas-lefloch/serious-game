@@ -23,7 +23,7 @@ public class Vector2DTest {
     }
 
     @Test
-    public void substractTest() {
+    public void subtractTest() {
         Vector2D v = new Vector2D(-1, 1);
         v.add(new Vector2D(-1, -1));
         assertEquals(-2, v.getX());
@@ -34,6 +34,14 @@ public class Vector2DTest {
     public void addNullTest() {
         Vector2D v = new Vector2D(1, 1);
         v.add(null);
+    }
+
+    @Test
+    public void addScalarTest() {
+        Vector2D v = new Vector2D(1,1);
+        v.addScalar(5);
+        assertEquals(6,v.getX());
+        assertEquals(6,v.getY());
     }
 
 

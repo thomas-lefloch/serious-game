@@ -20,6 +20,15 @@ public class Vector2D {
         this.y += other.y;
     }
 
+    /**
+     * adds 1 scalar to the current vector
+     * @param scalar the scalar to be added
+     */
+    public void addScalar(int scalar) {
+        this.x += scalar;
+        this.y += scalar;
+    }
+
     public int getX() {
         return x;
     }
