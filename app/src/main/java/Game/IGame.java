@@ -1,6 +1,8 @@
 package Game;
 
 import android.graphics.Canvas;
+import android.view.MotionEvent;
+import android.view.View;
 
 public interface IGame {
 
@@ -19,4 +21,6 @@ public interface IGame {
      * draw the actual game's state
      */
     void draw(Canvas canvas);
+
+    boolean onTouchEvent(MotionEvent event);
 }

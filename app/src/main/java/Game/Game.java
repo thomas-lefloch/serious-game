@@ -1,17 +1,19 @@
 package Game;
 
 import android.graphics.Canvas;
+import android.view.MotionEvent;
+import android.view.View;
 
 import java.util.ArrayList;
 
 public class Game implements IGame {
 
-    private ArrayList<ILevel> levels;
-    private ILevel selectedLevel;
+    private ArrayList<Level> levels;
+    private Level selectedLevel;
 
     public Game() {
         // Initializing levels
-        this.levels = new ArrayList<ILevel>();
+        this.levels = new ArrayList<Level>();
         this.levels.add(new FirstLevel());
 
 
@@ -44,5 +46,9 @@ public class Game implements IGame {
     public void draw(Canvas canvas) {
         canvas.drawRGB(40,40,40);
         selectedLevel.draw(canvas);
+    }
+
+    public boolean onTouchEvent(MotionEvent event) {
+        return selectedLevel.onTouchEvent(event);
     }
 }

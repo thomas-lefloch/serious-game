@@ -1,6 +1,7 @@
 package Game;
 
 import android.graphics.Canvas;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 
 public class GameRunner extends Thread {
@@ -39,14 +40,14 @@ public class GameRunner extends Thread {
                     this.game.draw(canvas);
                 }
 
-            } catch (Exception e) { //TODO add good exception
+            } catch (Exception e) {
                 e.printStackTrace();
             } finally {
                 if (canvas != null) {
                     try {
                         surfaceHolder.unlockCanvasAndPost(canvas);
                     }   catch (Exception e) {
-                        e.printStackTrace();  //TODO add good exception
+                        e.printStackTrace();
                     }
                 }
             }
@@ -60,6 +61,10 @@ public class GameRunner extends Thread {
                 frameCount = 0;
             }
         }
+    }
+
+    public boolean onTouchEvent(MotionEvent event) {
+        return game.onTouchEvent(event);
     }
 
     public void setRunning(boolean running) {

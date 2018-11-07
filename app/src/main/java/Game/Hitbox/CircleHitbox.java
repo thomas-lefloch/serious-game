@@ -5,9 +5,9 @@ import Vector.Vector2D;
 public class CircleHitbox implements Hitbox {
 
     private Vector2D pos;
-    private int radius;
+    private double radius;
 
-    public CircleHitbox(int x, int y, int radius) {
+    public CircleHitbox(double x, double y, double radius) {
 
         this.pos = new Vector2D(x,y);
         this.radius = Math.abs(radius);
@@ -24,7 +24,7 @@ public class CircleHitbox implements Hitbox {
     }
 
     private boolean intersectCircle(CircleHitbox other) {
-        float distBetweenCircles = Math.sqrt(()) // faire une methode entre vector ???
-        return ;
+        //float distBetweenCircles = Math.sqrt(()) // faire une methode entre vector ???
+        return false;
     }
 }

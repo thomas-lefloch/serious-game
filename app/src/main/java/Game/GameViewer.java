@@ -1,8 +1,10 @@
 package Game;
 
 import android.content.Context;
+import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
+import android.view.View;
 
 public class GameViewer extends SurfaceView implements SurfaceHolder.Callback {
 
@@ -14,6 +16,15 @@ public class GameViewer extends SurfaceView implements SurfaceHolder.Callback {
         getHolder().addCallback(this);
 
         setFocusable(true);
+
+        setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                View.SYSTEM_UI_FLAG_FULLSCREEN |
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        );
+
     }
 
     @Override
@@ -40,5 +51,10 @@ public class GameViewer extends SurfaceView implements SurfaceHolder.Callback {
             }
             retry = false;
         }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return runner.onTouchEvent(event);
     }
 }
