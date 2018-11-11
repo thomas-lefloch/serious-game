@@ -10,12 +10,12 @@ public class GameRunner extends Thread {
     private IGame game; /*Game's state*/
     private final SurfaceHolder surfaceHolder;
 
-    public GameRunner(SurfaceHolder surfaceHolder) {
+    public GameRunner(SurfaceHolder surfaceHolder, int viewWidth, int viewHeight) {
         super();
 
         this.surfaceHolder = surfaceHolder;
 
-        this.game = new Game();
+        this.game = new Game(viewWidth, viewHeight);
         this.running = false;
 
         game.setup();
@@ -33,11 +33,11 @@ public class GameRunner extends Thread {
             try {
                 startTime = System.nanoTime();
 
-                canvas = this.surfaceHolder.lockCanvas();
+                canvas = surfaceHolder.lockCanvas();
 
                 synchronized (surfaceHolder) {
-                    this.game.update();
-                    this.game.draw(canvas);
+                    game.update();
+                    game.draw(canvas);
                 }
 
             } catch (Exception e) {

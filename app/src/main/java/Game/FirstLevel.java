@@ -19,10 +19,12 @@ public class FirstLevel extends Level {
      */
     private double radiusLimit;
 
-    public FirstLevel() {
-        launchLocation = new Vector2D(900, 400);
-        g = new Garbage(launchLocation.getX(),launchLocation.getY(),25);
-        radiusLimit = g.getRadius() * 5;
+    public FirstLevel(int width, int height) {
+        super(width, height);
+
+        this.launchLocation = new Vector2D(900, 400);
+        this.g = new Garbage(launchLocation.getX(),launchLocation.getY(),25, this.levelWidth, this.levelHeight);
+        this.radiusLimit = g.getRadius() * 5;
     }
 
     @Override
@@ -65,6 +67,13 @@ public class FirstLevel extends Level {
             return true;
         }
         else if (event.getAction() == (MotionEvent.ACTION_UP)) {
+            Vector2D direction = new Vector2D(
+                    launchLocation.getX() - event.getX(),
+                    launchLocation.getY() - event.getY()
+            );
+
+            double power = direction.getMagnitude();
+            g.applyForce(power, direction.normalize());
             return true;
         }
         //we don't care about the event, we will not consume it
@@ -89,6 +98,6 @@ public class FirstLevel extends Level {
      */
     private boolean touchedGarbage(double x, double y) {
         Vector2D distanceGarEvent = new Vector2D(g.getPos().getX() - x, g.getPos().getY() - y);
-        return distanceGarEvent.getSquaredMagnitude() < this.g.getRadius();
+        return distanceGarEvent.getSquaredMagnitude() < g.getRadius();
     }
 }

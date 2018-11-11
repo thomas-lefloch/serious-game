@@ -11,14 +11,14 @@ public class Game implements IGame {
     private ArrayList<Level> levels;
     private Level selectedLevel;
 
-    public Game() {
+    public Game(int width, int height) {
         // Initializing levels
-        this.levels = new ArrayList<Level>();
-        this.levels.add(new FirstLevel());
+        levels = new ArrayList<Level>();
+        levels.add(new FirstLevel(width, height));
 
 
         //only one level for the moment
-        this.selectedLevel = this.levels.get(0);
+        selectedLevel = levels.get(0);
     }
 
     /**

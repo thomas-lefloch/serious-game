@@ -29,6 +29,21 @@ public class Vector2DTest {
         assertEquals(-2, v.getX(), 0);
         assertEquals(0, v.getY(), 0);
     }
+    @Test
+    public void addXYTest() {
+        Vector2D v = new Vector2D(1, 1);
+        v.add(1, 1);
+        assertEquals(2, v.getX(), 0);
+        assertEquals(2, v.getY(), 0);
+    }
+
+    @Test
+    public void subtractXYTest() {
+        Vector2D v = new Vector2D(-1, 1);
+        v.add(-1, -1);
+        assertEquals(-2, v.getX(), 0);
+        assertEquals(0, v.getY(), 0);
+    }
 
     @Test(expected = AssertionError.class)
     public void addNullTest() {
@@ -39,7 +54,7 @@ public class Vector2DTest {
     @Test
     public void addScalarTest() {
         Vector2D v = new Vector2D(1,1);
-        v.addScalar(5);
+        v.add(5);
         assertEquals(6,v.getX(), 0);
         assertEquals(6,v.getY(), 0);
     }
@@ -71,7 +86,7 @@ public class Vector2DTest {
 
     }
 
-    @Test(expected = AssertionError.class)
+    @Test(expected = ArithmeticException.class)
     public void divideByZero() {
         Vector2D v = new Vector2D(5,5);
         v.divide(0);
@@ -91,6 +106,30 @@ public class Vector2DTest {
         assertTrue(v.clone().getClass() == v.getClass());
         assertTrue(v.clone().getX() == v.getX());
         assertTrue(v.clone().getY() == v.getY());
+    }
+
+    @Test
+    public void testZeroVector() {
+        assertTrue(new Vector2D(0,0).isAZeroVector());
+        assertFalse(new Vector2D(0,1).isAZeroVector());
+        assertFalse(new Vector2D(1,0).isAZeroVector());
+        assertFalse(new Vector2D(1,1).isAZeroVector());
+    }
+
+    @Test
+    public void multiplyX() {
+        Vector2D v = new Vector2D(1, 1);
+        v.multiplyX(-1);
+        assertEquals(-1, v.getX(), 0);
+        assertEquals(1, v.getY(), 0);
+    }
+
+    @Test
+    public void multiplyY() {
+        Vector2D v = new Vector2D(1, 1);
+        v.multiplyY(-1);
+        assertEquals(1, v.getX(), 0);
+        assertEquals(-1, v.getY(), 0);
     }
 
 

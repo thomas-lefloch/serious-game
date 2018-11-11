@@ -29,7 +29,7 @@ public class GameViewer extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        runner = new GameRunner(holder);
+        runner = new GameRunner(holder, this.getWidth(), this.getHeight());
         runner.setRunning(true);
         runner.start();
     }
