@@ -21,36 +21,48 @@ public class Vector2D implements Cloneable{
     }
 
     /**
+     * adds x and y to the x and y of the current vector
+     * @param x offset
+     * @param y offset
+     */
+    public void add(double x, double y) {
+       this.x += x;
+       this.y += y;
+    }
+
+    /**
      * adds 1 scalar to the current vector
      * @param scalar the scalar to be added
      */
-    public void addScalar(double scalar) {
-        this.x += scalar;
-        this.y += scalar;
+    public void add(double scalar) {
+        x += scalar;
+        y += scalar;
     }
 
     /**
      * @return the non-squared length of the current vector
      */
     public double getMagnitude() {
-        return this.x * this.x + this.y * this.y;
+        return x * x + y * y;
     }
 
     /**
      * @return the squared length of the current vector
      */
     public double getSquaredMagnitude() {
-        return Math.sqrt(this.getMagnitude());
+        return Math.sqrt(getMagnitude());
     }
 
     /**
      * divide the current vector by a scalar
      * @param scalar the number to divide the vector with
      * */
-    public void divide (double scalar) {
-        assert scalar != 0 : "cannot divide by 0";
-        this.x = this.x / scalar;
-        this.y = this.y / scalar;
+    public void divide (double scalar) throws ArithmeticException {
+        if (scalar == 0) {
+            throw new ArithmeticException("cannot divide by zero");
+        }
+        y = y / scalar;
+        x = x / scalar;
     }
 
     /**
@@ -58,9 +70,16 @@ public class Vector2D implements Cloneable{
      * @return the normalize vector
      */
     public Vector2D normalize() {
-        Vector2D normalized = this.clone();
+        Vector2D normalized = clone();
         normalized.divide(normalized.getSquaredMagnitude());
         return normalized;
+    }
+
+    /**
+     * @return true if the current vector is a zero vector (coordinates equals to 0)
+     */
+    public boolean isAZeroVector() {
+        return (x == 0 && y == 0);
     }
 
     /**
@@ -79,12 +98,25 @@ public class Vector2D implements Cloneable{
         return newV;
     }
 
+    public void multiply(double scalar) {
+        this.multiplyX(scalar);
+        this.multiplyY(scalar);
+    }
+
+    public void multiplyX(double scalar) {
+        this.x *= scalar;
+    }
+
+    public void multiplyY(double scalar) {
+        this.y *= scalar;
+    }
+
     public double getX() {
-        return x;
+        return this.x;
     }
 
     public double getY() {
-        return y;
+        return this.y;
     }
 
     public void setX(double x) {
@@ -93,5 +125,10 @@ public class Vector2D implements Cloneable{
 
     public void setY(double y) {
         this.y = y;
+    }
+
+    public void setValue(double x, double y) {
+        this.setX(x);
+        this.setY(y);
     }
 }
