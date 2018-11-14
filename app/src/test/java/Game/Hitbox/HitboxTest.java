@@ -24,6 +24,13 @@ public class HitboxTest {
     }
 
     @Test
+    public void limitIntersectCirRect() {
+        CircleHitbox c = new CircleHitbox(new Vector2D(0, 0), 1);
+        RectangleHitbox r = new RectangleHitbox(new Vector2D(1, 0), 1, 1);
+        assertTrue(Hitbox.intersect(c, r));
+    }
+
+    @Test
     public void noIntersectCornerCirRect() {
         CircleHitbox c = new CircleHitbox(new Vector2D(0, 0), 100);
         RectangleHitbox r = new RectangleHitbox(new Vector2D(99, 99), 4, 4);

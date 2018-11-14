@@ -7,12 +7,14 @@ public class Hitbox {
 
     public static boolean intersect(CircleHitbox circle, RectangleHitbox rect) {
         Vector2D rectCenter = rect.getCenter();
-        Vector2D direction = new Vector2D(circle.getX() - rectCenter.getX(), circle.getY() - rectCenter.getY()).normalize();
+        Vector2D length = new Vector2D(circle.getX() - rectCenter.getX(), circle.getY() - rectCenter.getY());
+        if (length.isAZeroVector()) {
+            return true;
+        }
+        Vector2D direction = length.normalize();
 
-        return (circle.getX() + Math.abs(circle.getRadius() * direction.getX()) >= rect.getX() &&
-                circle.getX() - Math.abs(circle.getRadius() * direction.getX()) <= rect.getX() + rect.getWidth() &&
-                circle.getY() + Math.abs(circle.getRadius() * direction.getY()) >= rect.getY() &&
-                circle.getY() - Math.abs(circle.getRadius() * direction.getY()) <= rect.getY() + rect.getHeight()
-        );
+        boolean checkX = Math.abs(length.getX()) < Math.abs(circle.getRadius() * direction.getX()) + rect.getWidth()/2;
+        boolean checkY = Math.abs(length.getY()) < Math.abs(circle.getRadius() * direction.getY()) + rect.getHeight()/2;
+        return ( checkX && checkY );
     }
 }

@@ -17,7 +17,7 @@ import Vector.Vector2D;
 public class FirstLevel extends Level {
 
 
-    private Trashcan t;
+    private ArrayList<Trashcan> bins;
     private Garbage g;
     /**
      * indicates the starting point of all the garbages
@@ -33,9 +33,9 @@ public class FirstLevel extends Level {
 
         this.launchLocation = new Vector2D(300, levelHeight - 200);
 
-        this.t = new Trashcan(150, 200, this.levelWidth, this.levelHeight);
+        Trashcan t = new Trashcan(150, 200, this.levelWidth, this.levelHeight);
 
-        ArrayList<Trashcan> bins = new ArrayList<Trashcan>();
+        bins = new ArrayList<Trashcan>();
         bins.add(t);
         this.g = new Garbage(launchLocation.getX(),launchLocation.getY(),25, this.levelWidth, this.levelHeight, bins);
         this.radiusLimit = g.getRadius() * 6;
@@ -49,14 +49,22 @@ public class FirstLevel extends Level {
             g.update();
         }
 
-
+        if (g.getState().equals(GarbageState.STOPPED)) {
+            resetGarbage();
+        }
 
 
     }
 
+    public void resetGarbage() {
+        g = new Garbage(launchLocation.getX(),launchLocation.getY(),25, this.levelWidth, this.levelHeight, bins);
+    }
+
     @Override
     public void draw(Canvas canvas) {
-        t.draw(canvas);
+        for (int i = 0; i < bins.size(); i++) {
+            bins.get(i).draw(canvas);
+        }
         g.draw(canvas);
     }
 

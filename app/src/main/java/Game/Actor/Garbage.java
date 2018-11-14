@@ -61,7 +61,7 @@ public class Garbage implements GameActor {
     public void draw(Canvas canvas) {
         color.setColor(Color.WHITE);
         if (state.equals(GarbageState.LAUNCHED)) {
-            color.setColor(Color.BLUE);
+            color.setColor(Color.CYAN);
         }
         if (state.equals(GarbageState.STOPPED)) {
             color.setColor(Color.RED);
@@ -109,30 +109,39 @@ public class Garbage implements GameActor {
     public void move(double xOffset, double yOffset) {// TODO set to private (public for tests)
         position.add(xOffset, yOffset);
         //
-        CircleHitbox gHB = getHitbox();
+
         for (int i = 0 ; i < bins.size(); i++) {
             RectangleHitbox leftHB = bins.get(i).getLeftHitbox();
-            if (Hitbox.intersect(gHB, leftHB)) {
-                if (getVel().getX() < 0) {
-                    setX(leftHB.getX() + leftHB.getWidth() + getRadius() + 1);
+            if (Hitbox.intersect(getHitbox(), leftHB)) {
+                if (getVel().getX() <= 0) {
+                    setX(leftHB.getX() + leftHB.getWidth() + getRadius());
                 } else {
-                    setX(leftHB.getX() - getRadius() - 1);
+                    setX(leftHB.getX() - getRadius());
+                }
+                getVel().multiplyX(-1);
+            }
+            RectangleHitbox rightHB = bins.get(i).getRightHitbox();
+            if (Hitbox.intersect(getHitbox(), rightHB)) {
+                if (getVel().getX() <= 0) {
+                    setX(rightHB.getX() + rightHB.getWidth() + getRadius());
+                } else {
+                    setX(rightHB.getX() - getRadius());
                 }
                 getVel().multiplyX(-1);
             }
             RectangleHitbox bottomHB = bins.get(i).getBottomHitbox();
-            if (Hitbox.intersect(gHB, bottomHB)) {
-                setY(bottomHB.getY() - getRadius() - 1);
+            if (Hitbox.intersect(getHitbox(), bottomHB)) {
+                if (velocity.getY() <= 0) {
+                    setY(bottomHB.getY() + bottomHB.getHeight() + getRadius());
+                } else {
+                    setY(bottomHB.getY() - getRadius());
+                }
                 getVel().multiplyY(-1);
             }
-            RectangleHitbox rightHB = bins.get(i).getRightHitbox();
-            if (Hitbox.intersect(gHB, rightHB)) {
-                if (getVel().getX() < 0) {
-                    setX(rightHB.getX() + rightHB.getWidth() + getRadius());
-                } else {
-                    setX(rightHB.getX() - getRadius() - 1);
-                }
-                getVel().multiplyX(-1);
+            RectangleHitbox winningHB = bins.get(i).getWinningHitbox();
+            if (Hitbox.intersect(getHitbox()    , winningHB)) {
+                velocity.setValue(0, 0);
+                setState(GarbageState.STOPPED);
             }
         }
 

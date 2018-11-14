@@ -16,7 +16,7 @@ public class GarbageTest {
     private final double slowingFactor = Garbage.getSlowingFactor();
 
     private Garbage getGarbage() {
-        return new Garbage(0, 0, 0, 200, 200);
+        return new Garbage(0, 0, 0, 200, 200, null);
     }
 
     @Test

@@ -33,11 +33,12 @@ public class Trashcan implements GameActor {
 
         this.position = new Vector2D(this.levelWidth - 200 - width, this.levelHeight - height - 100);
 
-        this.leftHitbox = new RectangleHitbox(position, 5, this.height);
-        this.rightHitbox = new RectangleHitbox(new Vector2D(position.getX() + this.width, position.getY()), 5, this.height);
-        this.bottomHitbox = new RectangleHitbox(new Vector2D(position.getX(), position.getY() + this.height - 10), this.width, 10);
+        double hBWidth = 20;
+        this.leftHitbox = new RectangleHitbox(position, hBWidth, this.height);
+        this.rightHitbox = new RectangleHitbox(new Vector2D(position.getX() + this.width - hBWidth, position.getY()), hBWidth, this.height);
+        this.bottomHitbox = new RectangleHitbox(new Vector2D(position.getX() + hBWidth, position.getY() + this.height - hBWidth), this.width - hBWidth * 2, hBWidth);
 
-        this.winningHitbox = new RectangleHitbox(new Vector2D(position.getX() + 2, position.getY() + height/2), width - 4, height/2);
+        this.winningHitbox = new RectangleHitbox(new Vector2D(position.getX() + hBWidth, position.getY() + height/2), this.width - hBWidth * 2, this.height/2 - hBWidth);
 
         color = new Paint();
         color.setColor(Color.GREEN);
@@ -50,10 +51,11 @@ public class Trashcan implements GameActor {
 
     @Override
     public void draw(Canvas canvas) {
-        //canvas.drawRect(new RectF((float) position.getX(),(float) position.getY(),(float) (position.getX()+width), (float)(position.getY() + height)), color);
-        leftHitbox.draw(canvas);
-        bottomHitbox.draw(canvas);
-        rightHitbox.draw(canvas);
+        canvas.drawRect(new RectF((float) position.getX(),(float) position.getY(),(float) (position.getX()+width), (float)(position.getY() + height)), color);
+        leftHitbox.draw(canvas, Color.MAGENTA);
+        bottomHitbox.draw(canvas, Color.GRAY);
+        rightHitbox.draw(canvas, Color.RED);
+        winningHitbox.draw(canvas, Color.YELLOW);
     }
 
     public RectangleHitbox getLeftHitbox() {

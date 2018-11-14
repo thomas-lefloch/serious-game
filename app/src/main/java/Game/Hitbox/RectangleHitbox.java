@@ -1,8 +1,6 @@
 package Game.Hitbox;
 
-import android.database.sqlite.SQLiteBindOrColumnIndexOutOfRangeException;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 
 import Vector.Vector2D;
@@ -39,9 +37,9 @@ public class RectangleHitbox {
         return new Vector2D(this.position.getX() + this.width/2, this.position.getY() + this.height/2);
     }
 
-    public void draw (Canvas c) {
+    public void draw (Canvas c, int col) {
         Paint color = new Paint();
-        color.setColor(Color.CYAN);
+        color.setColor(col);
         c.drawRect((float) position.getX(), (float) position.getY(), (float) (position.getX() + width), (float) (position.getY() + height), color);
     }
 }
