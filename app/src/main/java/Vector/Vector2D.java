@@ -98,6 +98,10 @@ public class Vector2D implements Cloneable{
         return newV;
     }
 
+    public void multiply(double scalar) {
+        this.multiplyX(scalar);
+        this.multiplyY(scalar);
+    }
 
     public void multiplyX(double scalar) {
         this.x *= scalar;

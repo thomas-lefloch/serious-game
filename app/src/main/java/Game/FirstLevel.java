@@ -4,11 +4,20 @@ import android.graphics.Canvas;
 import android.view.MotionEvent;
 
 
+import java.util.ArrayList;
+
 import Game.Actor.Garbage;
+import Game.Actor.GarbageState;
+import Game.Actor.Trashcan;
+import Game.Hitbox.CircleHitbox;
+import Game.Hitbox.Hitbox;
+import Game.Hitbox.RectangleHitbox;
 import Vector.Vector2D;
 
 public class FirstLevel extends Level {
 
+
+    private Trashcan t;
     private Garbage g;
     /**
      * indicates the starting point of all the garbages
@@ -22,18 +31,32 @@ public class FirstLevel extends Level {
     public FirstLevel(int width, int height) {
         super(width, height);
 
-        this.launchLocation = new Vector2D(900, 400);
-        this.g = new Garbage(launchLocation.getX(),launchLocation.getY(),25, this.levelWidth, this.levelHeight);
-        this.radiusLimit = g.getRadius() * 5;
+        this.launchLocation = new Vector2D(300, levelHeight - 200);
+
+        this.t = new Trashcan(150, 200, this.levelWidth, this.levelHeight);
+
+        ArrayList<Trashcan> bins = new ArrayList<Trashcan>();
+        bins.add(t);
+        this.g = new Garbage(launchLocation.getX(),launchLocation.getY(),25, this.levelWidth, this.levelHeight, bins);
+        this.radiusLimit = g.getRadius() * 6;
+
     }
 
     @Override
     public void update() {
-        g.update();
+        if(g.getState().equals(GarbageState.LAUNCHED)) {
+            g.applyForce(0.69, new Vector2D(0, 1));
+            g.update();
+        }
+
+
+
+
     }
 
     @Override
     public void draw(Canvas canvas) {
+        t.draw(canvas);
         g.draw(canvas);
     }
 
@@ -41,7 +64,8 @@ public class FirstLevel extends Level {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            if (touchedGarbage(event.getX(), event.getY())) {
+            if (touchedGarbage(event.getX(), event.getY()) &&
+                    g.getState().equals(GarbageState.STANDBY)) {
                 //the event will be consumed
                 return true;
             }
@@ -68,12 +92,13 @@ public class FirstLevel extends Level {
         }
         else if (event.getAction() == (MotionEvent.ACTION_UP)) {
             Vector2D direction = new Vector2D(
-                    launchLocation.getX() - event.getX(),
-                    launchLocation.getY() - event.getY()
+                    launchLocation.getX() - g.getPos().getX(),
+                    launchLocation.getY() - g.getPos().getY()
             );
 
-            double power = direction.getMagnitude();
+            double power = direction.getSquaredMagnitude() / 3;
             g.applyForce(power, direction.normalize());
+            g.setState(GarbageState.LAUNCHED);
             return true;
         }
         //we don't care about the event, we will not consume it
@@ -100,4 +125,5 @@ public class FirstLevel extends Level {
         Vector2D distanceGarEvent = new Vector2D(g.getPos().getX() - x, g.getPos().getY() - y);
         return distanceGarEvent.getSquaredMagnitude() < g.getRadius();
     }
+
 }

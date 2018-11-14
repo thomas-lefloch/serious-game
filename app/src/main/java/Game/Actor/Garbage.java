@@ -3,6 +3,12 @@ package Game.Actor;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+
+import java.util.ArrayList;
+
+import Game.Hitbox.CircleHitbox;
+import Game.Hitbox.Hitbox;
+import Game.Hitbox.RectangleHitbox;
 import Vector.Vector2D;
 
 public class Garbage implements GameActor {
@@ -13,12 +19,20 @@ public class Garbage implements GameActor {
 
     private int levelWidth;
     private int levelHeight;
-    private final double maxSpeed = 10;
     private double radius;
+
+    private GarbageState state;
+
+    private static final double slowingFactor = 0.99;
+    private static final double velMinLimit = 3.9;
 
     private Paint color;
 
-    public Garbage(double x, double y, double radius, int levelWidth, int levelHeight) {
+    private ArrayList<Trashcan> bins;
+
+    private final int maxSpeed = 5;
+
+    public Garbage(double x, double y, double radius, int levelWidth, int levelHeight, ArrayList<Trashcan> bins) {
         this.color = new Paint();
         this.color.setColor(Color.WHITE);
         this.position = new Vector2D(x, y);
@@ -27,6 +41,9 @@ public class Garbage implements GameActor {
         this.levelWidth = levelWidth;
         this.levelHeight = levelHeight;
         this.radius = radius;
+        this.state = GarbageState.STANDBY;
+        this.bins =  bins;
+
     }
 
     @Override
@@ -42,18 +59,17 @@ public class Garbage implements GameActor {
 
     @Override
     public void draw(Canvas canvas) {
+        color.setColor(Color.WHITE);
+        if (state.equals(GarbageState.LAUNCHED)) {
+            color.setColor(Color.BLUE);
+        }
+        if (state.equals(GarbageState.STOPPED)) {
+            color.setColor(Color.RED);
+        }
         canvas.drawCircle((float) position.getX(), (float) position.getY(), (float) radius, color);
     }
 
-    /**
-     * change the location of the current object
-     * 
-     * @param x the new x location
-     * @param y the new y location
-     */
-    public void setLocation(double x, double y) {
-        position.setValue(x, y);
-    }
+
 
     /**
      * "apply a force" to the current garbage
@@ -72,30 +88,16 @@ public class Garbage implements GameActor {
      * update the position of the garbage in function of the velocity
      */
     public void updatePosition() { // TODO set to private (public for tests)
-        Vector2D movingDirection = velocity.normalize();
-        double movingX = maxSpeed * movingDirection.getX();
-        double movingY = maxSpeed * movingDirection.getY();
+        double xMove = velocity.getX();
+        double yMove = velocity.getY();
+        //TODO effectuer les check de collision plusieurs fois par update();
+        move(velocity.getX(), velocity.getY());
 
-        // x et y < maxSpeed
-        if (Math.abs(velocity.getX()) < Math.abs(movingX) && Math.abs(velocity.getY()) < Math.abs(movingY)) {
-            move(velocity.getX(), velocity.getY());
-            velocity.setValue(0, 0);
-        }
-        // x < maxSpeed et y > maxSpeed
-        else if (Math.abs(velocity.getX()) < Math.abs(movingX)) {
-            move(velocity.getX(), movingY);
-            velocity.add(-velocity.getX(), -movingY);
-        }
-        // y < maxSpeed et x > maxSpeed
-        else if (Math.abs(velocity.getY()) < Math.abs(movingY)) {
-            move(movingX, velocity.getY());
-            velocity.add(-movingX, -velocity.getY());
-        }
-        // x et y > maxSpeed
-        else {
-            move(movingX, movingY);
-            velocity.add(-movingX, -movingY);
-        }
+        updateVelocity();
+    }
+
+    public void updateVelocity() {
+        velocity.multiply(slowingFactor);
     }
 
     /**
@@ -106,6 +108,35 @@ public class Garbage implements GameActor {
      */
     public void move(double xOffset, double yOffset) {// TODO set to private (public for tests)
         position.add(xOffset, yOffset);
+        //
+        CircleHitbox gHB = getHitbox();
+        for (int i = 0 ; i < bins.size(); i++) {
+            RectangleHitbox leftHB = bins.get(i).getLeftHitbox();
+            if (Hitbox.intersect(gHB, leftHB)) {
+                if (getVel().getX() < 0) {
+                    setX(leftHB.getX() + leftHB.getWidth() + getRadius() + 1);
+                } else {
+                    setX(leftHB.getX() - getRadius() - 1);
+                }
+                getVel().multiplyX(-1);
+            }
+            RectangleHitbox bottomHB = bins.get(i).getBottomHitbox();
+            if (Hitbox.intersect(gHB, bottomHB)) {
+                setY(bottomHB.getY() - getRadius() - 1);
+                getVel().multiplyY(-1);
+            }
+            RectangleHitbox rightHB = bins.get(i).getRightHitbox();
+            if (Hitbox.intersect(gHB, rightHB)) {
+                if (getVel().getX() < 0) {
+                    setX(rightHB.getX() + rightHB.getWidth() + getRadius());
+                } else {
+                    setX(rightHB.getX() - getRadius() - 1);
+                }
+                getVel().multiplyX(-1);
+            }
+        }
+
+        //collision limite du niveau
         if (position.getX() - radius < 0) {
             position.setX(radius);
             velocity.multiplyX(-1);
@@ -120,15 +151,31 @@ public class Garbage implements GameActor {
         }
         if (position.getY() + radius >= levelHeight) {
             position.setY(levelHeight - 1 - radius);
-            velocity.multiplyY(-1);
+            if ((Math.abs(velocity.getY()) < velMinLimit)) {
+                velocity.setY(0);
+                state = GarbageState.STOPPED;
+            }
+            else {
+                velocity.multiplyY(-1);
+            }
         }
     }
+    /**
+     * change the location of the current object
+     *
+     * @param x the new x location
+     * @param y the new y location
+     */
+    public void setLocation(double x, double y) {
+        position.setValue(x, y);
+    }
 
-    public boolean isOutOfLevelBounds() {
-        return ((position.getX() - radius < 0) ||
-                (position.getX() + radius >= levelWidth) ||
-                (position.getY() - radius < 0) ||
-                (position.getY() + radius >= levelHeight));
+    public void setX(double x) {
+        position.setX(x);
+    }
+
+    public void setY(double y) {
+        position.setY(y);
     }
 
     public Vector2D getPos() {
@@ -143,7 +190,31 @@ public class Garbage implements GameActor {
         return this.velocity;
     }
 
+    public void setVel(Vector2D v) {
+        velocity = v;
+    }
+
     public double getRadius() {
         return this.radius;
+    }
+
+    public GarbageState getState() {
+        return state;
+    }
+
+    public void setState(GarbageState state) {
+        this.state = state;
+    }
+
+    public static double getSlowingFactor() {
+        return slowingFactor;
+    }
+
+    public static double getVelMinLimit() {
+        return velMinLimit;
+    }
+
+    public CircleHitbox getHitbox() {
+        return new CircleHitbox(position, radius);
     }
 }
