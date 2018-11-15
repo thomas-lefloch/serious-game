@@ -5,7 +5,7 @@ import android.graphics.Paint;
 
 import Vector.Vector2D;
 
-public class RectangleHitbox {
+public class RectangleHitbox implements Hitbox {
 
     private Vector2D position;
     private double width;
@@ -35,11 +35,5 @@ public class RectangleHitbox {
 
     public Vector2D getCenter() {
         return new Vector2D(this.position.getX() + this.width/2, this.position.getY() + this.height/2);
-    }
-
-    public void draw (Canvas c, int col) {
-        Paint color = new Paint();
-        color.setColor(col);
-        c.drawRect((float) position.getX(), (float) position.getY(), (float) (position.getX() + width), (float) (position.getY() + height), color);
     }
 }

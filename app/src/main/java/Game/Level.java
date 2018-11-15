@@ -9,11 +9,13 @@ import java.util.ArrayList;
 
 import Game.Actor.Garbage;
 import Game.Actor.GarbageState;
+import Game.Actor.Obstacle;
 import Game.Actor.Trashcan;
 import Vector.Vector2D;
 
 public abstract class Level {
 
+    protected ArrayList<Obstacle> obstacles;
     protected ArrayList<Trashcan> bins;
     protected ArrayList<Garbage> garbages;
     protected Garbage currentGarbage;
@@ -107,15 +109,34 @@ public abstract class Level {
     }
 
     public void draw(Canvas canvas){
+        int indexCurrentGarb = garbages.indexOf(currentGarbage);
+        for (int i = 0; i < indexCurrentGarb; i++) {
+            garbages.get(i).draw(canvas);
+        }
+
+        drawMiniatures(canvas, 50, 50,40, 0.3f, indexCurrentGarb);
+
+        showLaunchPower(canvas);
+
+        currentGarbage.draw(canvas);
+
         for (int i = 0; i < bins.size(); i++) {
             bins.get(i).draw(canvas);
         }
 
-        //TODO draw garbages corrrectly
-        //unused garbages on the top left reduce
-        //used garbages on the
-        currentGarbage.draw(canvas);
+        for (int i = 0; i < obstacles.size(); i++) {
+            obstacles.get(i).draw(canvas);
+        }
+    }
 
+    private void drawMiniatures(Canvas canvas, int x, int y, int spacing, float scalingFactor, int indexGarbage) {
+        for (int i = indexGarbage + 1; i < garbages.size(); i++) {
+            garbages.get(i).drawMin(canvas, x, y, scalingFactor);
+            x += spacing;
+        }
+    }
+
+    private void showLaunchPower(Canvas canvas) {
         if (currentGarbage.getState().equals(GarbageState.STANDBY)) {
             Paint p = new Paint();
             p.setColor(Color.WHITE);
@@ -125,6 +146,7 @@ public abstract class Level {
 
     public abstract void update();
 
+    protected abstract ArrayList<Obstacle> initObstacles();
     protected abstract ArrayList<Garbage> initGarbages();
     protected abstract ArrayList<Trashcan> initTrashcans();
 }

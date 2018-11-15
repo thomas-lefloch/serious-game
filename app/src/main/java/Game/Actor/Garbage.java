@@ -4,10 +4,12 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
+import java.io.ObjectStreamClass;
 import java.util.ArrayList;
 
 import Game.Hitbox.CircleHitbox;
 import Game.Hitbox.Hitbox;
+import Game.Hitbox.HitboxController;
 import Game.Hitbox.RectangleHitbox;
 import Vector.Vector2D;
 
@@ -29,8 +31,13 @@ public class Garbage implements GameActor {
     private Paint color;
 
     private ArrayList<Trashcan> bins;
+    private ArrayList<Obstacle> obstacles;
 
-    public Garbage(double x, double y, double radius, int levelWidth, int levelHeight, ArrayList<Trashcan> bins) {
+    private GarbageType type;
+
+    private boolean isInTheRightBin;
+
+    public Garbage(double x, double y, double radius, int levelWidth, int levelHeight, ArrayList<Trashcan> bins, ArrayList<Obstacle> obs, GarbageType type) {
         this.position = new Vector2D(x, y);
         this.velocity = new Vector2D(0, 0);
         this.acceleration = new Vector2D(0, 0);
@@ -38,14 +45,34 @@ public class Garbage implements GameActor {
         this.radius = radius;
 
         this.bins =  bins;
+        this.obstacles = obs;
 
         this.levelWidth = levelWidth;
         this.levelHeight = levelHeight;
 
         this.state = GarbageState.STANDBY;
 
+        this.type = type;
+
         this.color = new Paint();
-        this.color.setColor(Color.WHITE);
+        this.color.setColor(chooseColor(type));
+
+        this.isInTheRightBin = false;
+    }
+
+    /**
+     * return a color based on the type of garbage passed in the parameter
+     * @param t the type of garbage
+     * @return the color
+     */
+    private int chooseColor(GarbageType t){
+        if (t.equals(GarbageType.RECYCLABLE)) {
+            return Color.YELLOW;
+        } else if (t.equals(GarbageType.GLASS)) {
+            return  Color.WHITE;
+        } else {
+            return Color.GREEN;
+        }
     }
 
     @Override
@@ -61,14 +88,11 @@ public class Garbage implements GameActor {
 
     @Override
     public void draw(Canvas canvas) {
-        color.setColor(Color.WHITE);
-        if (state.equals(GarbageState.LAUNCHED)) {
-            color.setColor(Color.CYAN);
-        }
-        if (state.equals(GarbageState.STOPPED)) {
-            color.setColor(Color.RED);
-        }
         canvas.drawCircle((float) position.getX(), (float) position.getY(), (float) radius, color);
+    }
+
+    public void drawMin(Canvas canvas, float x, float y, float scalingFactor) {
+        canvas.drawCircle(x, y, (float) radius * scalingFactor, color);
     }
 
 
@@ -111,12 +135,14 @@ public class Garbage implements GameActor {
         checkAndResolveBinsCollision();
 
         checkAndResolveBoundsCollision();
+
+        checkAndResolveObsCollsion();
     }
 
     public void checkAndResolveBinsCollision() {
         for (int i = 0 ; i < bins.size(); i++) {
             RectangleHitbox leftHB = bins.get(i).getLeftHitbox();
-            if (Hitbox.intersect(getHitbox(), leftHB)) {
+            if (HitboxController.intersect(getHitbox(), leftHB)) {
                 if (getVel().getX() <= 0) {
                     setX(leftHB.getX() + leftHB.getWidth() + getRadius());
                 } else {
@@ -125,7 +151,7 @@ public class Garbage implements GameActor {
                 getVel().multiplyX(-1);
             }
             RectangleHitbox rightHB = bins.get(i).getRightHitbox();
-            if (Hitbox.intersect(getHitbox(), rightHB)) {
+            if (HitboxController.intersect(getHitbox(), rightHB)) {
                 if (getVel().getX() <= 0) {
                     setX(rightHB.getX() + rightHB.getWidth() + getRadius());
                 } else {
@@ -134,7 +160,7 @@ public class Garbage implements GameActor {
                 getVel().multiplyX(-1);
             }
             RectangleHitbox bottomHB = bins.get(i).getBottomHitbox();
-            if (Hitbox.intersect(getHitbox(), bottomHB)) {
+            if (HitboxController.intersect(getHitbox(), bottomHB)) {
                 if (velocity.getY() <= 0) {
                     setY(bottomHB.getY() + bottomHB.getHeight() + getRadius());
                 } else {
@@ -143,9 +169,31 @@ public class Garbage implements GameActor {
                 getVel().multiplyY(-1);
             }
             RectangleHitbox winningHB = bins.get(i).getWinningHitbox();
-            if (Hitbox.intersect(getHitbox()    , winningHB)) {
+            if (HitboxController.intersect(getHitbox(), winningHB)) {
                 velocity.setValue(0, 0);
-                setState(GarbageState.STOPPED);
+                if (bins.get(i).getType().equals(this.type)) {
+                    setState(GarbageState.STOPPED);
+                    isInTheRightBin = true;
+                }
+                else {
+                    position.setValue(winningHB.getX() + winningHB.getWidth()/2, winningHB.getY() - radius);
+                    double forceX = Math.random() * (0.85 + 0.85) - 0.85;
+                    applyForce(40, new Vector2D(forceX, -1).normalize());
+                }
+            }
+        }
+    }
+
+    public void checkAndResolveObsCollsion() {
+        for (int i = 0; i < obstacles.size(); i++) {
+            RectangleHitbox obsHitbox = obstacles.get(i).getHitbox() ;
+            if (HitboxController.intersect(getHitbox(), obsHitbox)) {
+                if (getVel().getX() <= 0) {
+                    setX(obsHitbox.getX() + obsHitbox.getWidth() + getRadius());
+                } else {
+                    setX(obsHitbox.getX() - getRadius());
+                }
+                getVel().multiplyX(-1);
             }
         }
     }
@@ -239,5 +287,9 @@ public class Garbage implements GameActor {
 
     public CircleHitbox getHitbox() {
         return new CircleHitbox(position, radius);
+    }
+
+    public boolean isInTheRightBin() {
+        return isInTheRightBin;
     }
 }

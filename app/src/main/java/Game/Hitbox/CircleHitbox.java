@@ -2,7 +2,7 @@ package Game.Hitbox;
 
 import Vector.Vector2D;
 
-public class CircleHitbox {
+public class CircleHitbox implements Hitbox {
 
     private Vector2D position;
     private double radius;
